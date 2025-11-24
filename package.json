@@ -1,0 +1,45 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "API Plano de Mix",
+  "main": "app.js",
+  "scripts": {
+    "dev": "tsx watch app.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/app.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ICEI-PUC-Minas-PBR-ADS/pbr-ads-2025-2-p4-tiam-t1-246566-pbr-ads-2025-2-p4-mix.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ICEI-PUC-Minas-PBR-ADS/pbr-ads-2025-2-p4-tiam-t1-246566-pbr-ads-2025-2-p4-mix/issues"
+  },
+  "homepage": "https://github.com/ICEI-PUC-Minas-PBR-ADS/pbr-ads-2025-2-p4-tiam-t1-246566-pbr-ads-2025-2-p4-mix#readme",
+  "dependencies": {
+    "@prisma/client": "^6.19.0",
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "jose": "^6.1.0",
+    "nodemailer": "^7.0.10",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.5.2",
+    "@types/nodemailer": "^7.0.3",
+    "prisma": "^6.19.0",
+    "tsx": "^4.20.5",
+    "typecript": "^0.0.1-security",
+    "typescript": "^5.9.2"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed/seed.ts"
+  },
+  "type": "module"
+}

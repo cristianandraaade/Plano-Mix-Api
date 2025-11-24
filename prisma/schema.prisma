@@ -1,0 +1,134 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["views"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model activity {
+  id         Int     @id @default(autoincrement())
+  name       String  @db.VarChar(255)
+  segment_id Int
+  segment    segment @relation(fields: [segment_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_activity_segment")
+  store      store[]
+
+  @@index([segment_id], map: "FK_activity_segment")
+}
+
+model classification {
+  id      Int       @id @default(autoincrement())
+  name    String    @db.VarChar(255)
+  segment segment[]
+  store   store[]
+}
+
+model reset_password {
+  id         Int      @id @default(autoincrement()) @db.UnsignedInt
+  user_id    Int      @db.UnsignedInt
+  token_hash String   @db.VarChar(64)
+  expires_at DateTime @db.DateTime(0)
+  created_at DateTime @default(now()) @db.DateTime(0)
+  used       Boolean  @default(false) @db.Bit(1)
+}
+
+model segment {
+  id                Int            @id @default(autoincrement())
+  name              String         @db.VarChar(255)
+  classification_id Int
+  activity          activity[]
+  classification    classification @relation(fields: [classification_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_segment_classification")
+  store             store[]
+
+  @@index([classification_id], map: "FK_segment_classification")
+}
+
+model shopping {
+  id             Int              @id @default(autoincrement()) @db.UnsignedInt
+  name           String           @db.VarChar(70)
+  observation    String?          @db.VarChar(255)
+  zip_code       Int              @default(0)
+  zip_number     Int              @default(0)
+  shopping_store shopping_store[]
+  visit          visit[]
+}
+
+model shopping_store {
+  id             Int                   @id @default(autoincrement()) @db.UnsignedInt
+  store_id       Int                   @db.UnsignedInt
+  shopping_id    Int                   @db.UnsignedInt
+  store_id_right Int?                  @db.UnsignedInt
+  store_id_left  Int?                  @db.UnsignedInt
+  status         shopping_store_status
+  shopping       shopping              @relation(fields: [shopping_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_shopping_store_shopping")
+
+  @@index([shopping_id], map: "FK_shopping_store_shopping")
+}
+
+model store {
+  id                Int            @id @default(autoincrement()) @db.UnsignedInt
+  name              String         @db.VarChar(50)
+  classification_id Int
+  segment_id        Int
+  activity_id       Int?
+  activity          activity?      @relation(fields: [activity_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_store_activity")
+  classification    classification @relation(fields: [classification_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_store_classification")
+  segment           segment        @relation(fields: [segment_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_store_segment")
+
+  @@index([activity_id], map: "FK_store_activity")
+  @@index([classification_id], map: "FK_store_classification")
+  @@index([segment_id], map: "FK_store_segment")
+}
+
+model user {
+  id       Int       @id @default(autoincrement()) @db.UnsignedInt
+  name     String    @db.VarChar(100)
+  password String    @db.VarChar(255)
+  email    String    @default("") @db.VarChar(100)
+  type     user_type
+  visit    visit[]
+}
+
+model visit {
+  id          Int       @id @default(autoincrement()) @db.UnsignedInt
+  date        DateTime  @db.DateTime(0)
+  observation String?   @db.VarChar(255)
+  user_id     Int?      @db.UnsignedInt
+  shopping_id Int       @db.UnsignedInt
+  history     history[]
+  shopping    shopping  @relation(fields: [shopping_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_visit_shopping")
+  user        user?     @relation(fields: [user_id], references: [id], onUpdate: NoAction, map: "FK_visit_user")
+
+  @@index([shopping_id], map: "FK_visit_shopping")
+  @@index([user_id], map: "FK_visit_user")
+}
+
+model history {
+  id       Int   @id @default(autoincrement()) @db.UnsignedInt
+  visit_id Int   @db.UnsignedInt
+  stores   Json
+  visit    visit @relation(fields: [visit_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_history_visit")
+
+  @@index([visit_id], map: "FK_history_visit")
+}
+
+view mix {
+  classification_id Int     @default(0)
+  classification    String  @db.VarChar(255)
+  segment_id        Int     @default(0)
+  segment           String  @db.VarChar(255)
+  activity_id       Int?    @default(0)
+  activity          String? @db.VarChar(255)
+}
+
+enum user_type {
+  admin
+  default
+}
+
+enum shopping_store_status {
+  active
+  deleted
+}
